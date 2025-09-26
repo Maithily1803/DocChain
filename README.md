@@ -19,8 +19,8 @@
 
 <h3>Contributors</h3>
 
-- [Maithily Sawant]()
+- [Maithily Sawant](https://github.com/Maithily1803)
 
 - [Archita Shinde]()
 
-- [Naresh Bidbhitre]()
+- [Naresh Bidbhitre](https://github.com/skynaresh46)
