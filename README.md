@@ -21,6 +21,6 @@
 
 - [Maithily Sawant](https://github.com/Maithily1803)
 
-- [Archita Shinde]()
+- [Archita Shinde](https://github.com/architashinde)
 
 - [Naresh Bidbhitre](https://github.com/skynaresh46)
