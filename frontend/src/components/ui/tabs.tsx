@@ -77,4 +77,4 @@ export function TabsDemo() {
       </Tabs>
     </div>
   )
-}
+} 
