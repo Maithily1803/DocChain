@@ -97,7 +97,7 @@ export default function Header() {
                 className="p-2 rounded-full hover:bg-accent flex items-center"
                 type="button"
               >
-                <User className="w-5 h-5" />
+                {/* <User className="w-5 h-5" /> */}
               </button>
             </MenubarTrigger>
             <MenubarContent>
