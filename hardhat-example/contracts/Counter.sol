@@ -177,6 +177,29 @@ contract DocumentVerification {
             uint256 timestamp,
             string memory metadata
         )
+
+    // Batch operations for efficiency
+    function attestMultipleDocuments(
+      bytes32[] calldata _documentHashes,
+      string[] calldata _metadata,
+      uint256[] calldata _expiryDates
+    ) external onlyIssuer
+
+// Document sharing/delegation
+    function shareDocument(
+      bytes32 _documentHash,
+      address _recipient
+    ) external
+
+// Document categories/types
+    enum DocumentType { 
+      CERTIFICATE, 
+      LICENSE, 
+      TRANSCRIPT, 
+      ID_DOCUMENT, 
+      OTHER 
+    }
+
     {
         DocumentAttestation memory doc = attestations[_documentHash];
         
