@@ -5,6 +5,7 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
 import hre from "hardhat";
+import { ethers} from "hardhat";
 
 describe("Lock", function () {
   // We define a fixture to reuse the same setup in every test.
