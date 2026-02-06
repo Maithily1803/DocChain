@@ -1,4 +1,6 @@
 import hre from "hardhat";
+import "@nomicfoundation/hardhat-ethers";
+import { ethers } from "hardhat";
 
 async function main() {
   console.log("🚀 Starting deployment...");

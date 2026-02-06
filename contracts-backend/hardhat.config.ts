@@ -9,10 +9,11 @@ const config: HardhatUserConfig = {
 
   networks: {
     sepolia: {
+      type: "http",
       url: process.env.SEPOLIA_RPC_URL || "",
       accounts: process.env.SEPOLIA_PRIVATE_KEY
         ? [process.env.SEPOLIA_PRIVATE_KEY]
-        : [],
+        : [process.env.SEPOLIA_PRIVATE_KEY || " "],
     },
   },
 };
