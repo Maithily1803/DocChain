@@ -1,10 +1,10 @@
-import hre from "hardhat";
+import { ethers } from "hardhat";
 
 async function main() {
   console.log("🚀 Starting deployment...");
 
   // Get the contract factory
-  const DocChain = await hre.ethers.getContractFactory("DocChain");
+  const DocChain = await ethers.getContractFactory("DocChain");
 
   // Deploy the contract
   console.log("Deploying DocChain contract...");
