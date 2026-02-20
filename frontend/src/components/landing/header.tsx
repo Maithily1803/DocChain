@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, User } from "lucide-react";
-import LogoImg from "../../images/logo.png";
+import LogoImg from "../../image/logo.png";
 import {
   Menubar,
   MenubarMenu,
@@ -47,17 +47,15 @@ export default function Header() {
           <Image
             src={LogoImg} // place your logo inside /public folder
             alt="Logo"
-            width={36}
-            height={36}
+            width={100}
+            height={50}
             className="rounded-md"
           />
-          <span className="text-lg font-semibold tracking-tight">
-            DocChain
-          </span>
+          
         </Link>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <nav className="hidden md:flex items-center space-x-10 text-sm font-medium">
           <Link href="#features" className="hover:text-primary transition-colors">
             Features
           </Link>
@@ -77,11 +75,12 @@ export default function Header() {
             aria-label="Toggle Theme"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
           >
-            {theme === "light" ? (
-              <Moon className="h-[1.2rem] w-[1.2rem]" />
-            ) : (
-              <Sun className="h-[1.2rem] w-[1.2rem]" />
-            )}
+               {theme === "light" ? (
+      <Moon className="h-[1.2rem] w-[1.2rem]" />
+    ) : (
+      <Sun className="h-[1.2rem] w-[1.2rem]" />
+    )}
+
           </Button>
 
           <Button asChild>
@@ -91,15 +90,16 @@ export default function Header() {
       <div className="flex items-center gap-4">
         <Menubar>
           <MenubarMenu>
-            <MenubarTrigger>
-              <button
-                onDoubleClick={() => router.push("/login")}
-                className="p-2 rounded-full hover:bg-accent flex items-center"
-                type="button"
-              >
-                <User className="w-5 h-5" />
-              </button>
-            </MenubarTrigger>
+           <MenubarTrigger asChild>
+  <button
+    onDoubleClick={() => router.push("/login")}
+    className="p-2 rounded-full hover:bg-accent flex items-center"
+    type="button"
+  >
+    {/* The User icon can go here */}
+    <User className="w-5 h-5" />
+  </button>
+</MenubarTrigger>
             <MenubarContent>
               <MenubarRadioGroup value="">
                 <MenubarRadioItem value="andy" onClick={() =>router.push("/login/issuer")}>Issuer</MenubarRadioItem>
