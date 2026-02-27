@@ -1,22 +1,19 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-// ← remove the hardhat-verify import entirely
-import "dotenv/config";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 const config: HardhatUserConfig = {
-  solidity: {
-    version: "0.8.24",
-    settings: { optimizer: { enabled: true, runs: 200 } },
-  },
+  solidity: "0.8.28",
   networks: {
-    localhost: { type: "http", url: "http://127.0.0.1:8545" },
     sepolia: {
-      type: "http",
       url: process.env.SEPOLIA_RPC_URL || "",
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      accounts: process.env.SEPOLIA_PRIVATE_KEY
+        ? [process.env.SEPOLIA_PRIVATE_KEY]
+        : [],
     },
   },
-  etherscan: { apiKey: process.env.ETHERSCAN_API_KEY || "" },
 };
 
 export default config;
