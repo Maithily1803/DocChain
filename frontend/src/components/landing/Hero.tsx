@@ -22,7 +22,7 @@ export default function Hero() {
         </p>
 
   <div className="mt-6 flex items-center gap-4 justify-center">
-          <Button onClick={() =>router.push("/Verifiy")}>Verify a Document</Button>
+          <Button onClick={() =>router.push("/Verify")}>Verify a Document</Button>
           <a
             
             className="inline-flex items-center px-5 py-5 rounded-md text-sm text-muted-foreground"
