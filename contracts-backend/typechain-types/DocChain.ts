@@ -3,6 +3,7 @@
 /* eslint-disable */
 import type {
   BaseContract,
+  BigNumberish,
   BytesLike,
   FunctionFragment,
   Result,
@@ -24,50 +25,205 @@ import type {
 
 export interface DocChainInterface extends Interface {
   getFunction(
-    nameOrSignature: "documents" | "storeDocument" | "verifyDocument"
+    nameOrSignature:
+      | "admin"
+      | "getCertStatus"
+      | "getVerifyCount"
+      | "grantIssuer"
+      | "issuers"
+      | "revokeDocument"
+      | "revokeIssuer"
+      | "storeDocument"
+      | "transferAdmin"
+      | "verifyDocument"
+      | "verifyDocumentView"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "DocumentStored"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "DocumentRevoked"
+      | "DocumentStored"
+      | "DocumentVerified"
+      | "IssuerGranted"
+      | "IssuerRevoked"
+  ): EventFragment;
 
-  encodeFunctionData(functionFragment: "documents", values: [string]): string;
+  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getCertStatus",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getVerifyCount",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "grantIssuer",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "issuers",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeDocument",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeIssuer",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "storeDocument",
     values: [string, string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "transferAdmin",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "verifyDocument",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "verifyDocumentView",
+    values: [string]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "documents", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getCertStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getVerifyCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "grantIssuer",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "issuers", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeDocument",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokeIssuer",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "storeDocument",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "transferAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "verifyDocument",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "verifyDocumentView",
     data: BytesLike
   ): Result;
 }
 
-export namespace DocumentStoredEvent {
+export namespace DocumentRevokedEvent {
   export type InputTuple = [
-    hash: string,
-    owner: AddressLike,
-    ipfsCID: string,
-    docType: string
+    hashKey: string,
+    revokedBy: AddressLike,
+    revokedAt: BigNumberish
   ];
   export type OutputTuple = [
-    hash: string,
-    owner: string,
-    ipfsCID: string,
-    docType: string
+    hashKey: string,
+    revokedBy: string,
+    revokedAt: bigint
   ];
   export interface OutputObject {
-    hash: string;
-    owner: string;
+    hashKey: string;
+    revokedBy: string;
+    revokedAt: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DocumentStoredEvent {
+  export type InputTuple = [
+    hashKey: string,
+    issuedBy: AddressLike,
+    ipfsCID: string,
+    docType: string,
+    issuedAt: BigNumberish
+  ];
+  export type OutputTuple = [
+    hashKey: string,
+    issuedBy: string,
+    ipfsCID: string,
+    docType: string,
+    issuedAt: bigint
+  ];
+  export interface OutputObject {
+    hashKey: string;
+    issuedBy: string;
     ipfsCID: string;
     docType: string;
+    issuedAt: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace DocumentVerifiedEvent {
+  export type InputTuple = [
+    hashKey: string,
+    verifiedBy: AddressLike,
+    status: BigNumberish,
+    verifiedAt: BigNumberish
+  ];
+  export type OutputTuple = [
+    hashKey: string,
+    verifiedBy: string,
+    status: bigint,
+    verifiedAt: bigint
+  ];
+  export interface OutputObject {
+    hashKey: string;
+    verifiedBy: string;
+    status: bigint;
+    verifiedAt: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace IssuerGrantedEvent {
+  export type InputTuple = [issuer: AddressLike, grantedBy: AddressLike];
+  export type OutputTuple = [issuer: string, grantedBy: string];
+  export interface OutputObject {
+    issuer: string;
+    grantedBy: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace IssuerRevokedEvent {
+  export type InputTuple = [issuer: AddressLike, revokedBy: AddressLike];
+  export type OutputTuple = [issuer: string, revokedBy: string];
+  export interface OutputObject {
+    issuer: string;
+    revokedBy: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -118,18 +274,26 @@ export interface DocChain extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  documents: TypedContractMethod<
-    [arg0: string],
-    [
-      [string, string, string, string, bigint] & {
-        hash: string;
-        ipfsCID: string;
-        docType: string;
-        owner: string;
-        timestamp: bigint;
-      }
-    ],
-    "view"
+  admin: TypedContractMethod<[], [string], "view">;
+
+  getCertStatus: TypedContractMethod<[_hash: string], [bigint], "view">;
+
+  getVerifyCount: TypedContractMethod<[_hash: string], [bigint], "view">;
+
+  grantIssuer: TypedContractMethod<
+    [_issuer: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  issuers: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+
+  revokeDocument: TypedContractMethod<[_hash: string], [void], "nonpayable">;
+
+  revokeIssuer: TypedContractMethod<
+    [_issuer: AddressLike],
+    [void],
+    "nonpayable"
   >;
 
   storeDocument: TypedContractMethod<
@@ -138,9 +302,41 @@ export interface DocChain extends BaseContract {
     "nonpayable"
   >;
 
+  transferAdmin: TypedContractMethod<
+    [_newAdmin: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   verifyDocument: TypedContractMethod<
     [_hash: string],
-    [[boolean, string, bigint, string, string]],
+    [
+      [bigint, string, bigint, bigint, string, string, bigint] & {
+        status: bigint;
+        issuedBy: string;
+        issuedAt: bigint;
+        revokedAt: bigint;
+        ipfsCID: string;
+        docType: string;
+        verifyCount: bigint;
+      }
+    ],
+    "nonpayable"
+  >;
+
+  verifyDocumentView: TypedContractMethod<
+    [_hash: string],
+    [
+      [bigint, string, bigint, bigint, string, string, bigint] & {
+        status: bigint;
+        issuedBy: string;
+        issuedAt: bigint;
+        revokedAt: bigint;
+        ipfsCID: string;
+        docType: string;
+        verifyCount: bigint;
+      }
+    ],
     "view"
   >;
 
@@ -149,20 +345,26 @@ export interface DocChain extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "documents"
-  ): TypedContractMethod<
-    [arg0: string],
-    [
-      [string, string, string, string, bigint] & {
-        hash: string;
-        ipfsCID: string;
-        docType: string;
-        owner: string;
-        timestamp: bigint;
-      }
-    ],
-    "view"
-  >;
+    nameOrSignature: "admin"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getCertStatus"
+  ): TypedContractMethod<[_hash: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getVerifyCount"
+  ): TypedContractMethod<[_hash: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "grantIssuer"
+  ): TypedContractMethod<[_issuer: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "issuers"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "revokeDocument"
+  ): TypedContractMethod<[_hash: string], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "revokeIssuer"
+  ): TypedContractMethod<[_issuer: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "storeDocument"
   ): TypedContractMethod<
@@ -171,13 +373,50 @@ export interface DocChain extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "transferAdmin"
+  ): TypedContractMethod<[_newAdmin: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "verifyDocument"
   ): TypedContractMethod<
     [_hash: string],
-    [[boolean, string, bigint, string, string]],
+    [
+      [bigint, string, bigint, bigint, string, string, bigint] & {
+        status: bigint;
+        issuedBy: string;
+        issuedAt: bigint;
+        revokedAt: bigint;
+        ipfsCID: string;
+        docType: string;
+        verifyCount: bigint;
+      }
+    ],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "verifyDocumentView"
+  ): TypedContractMethod<
+    [_hash: string],
+    [
+      [bigint, string, bigint, bigint, string, string, bigint] & {
+        status: bigint;
+        issuedBy: string;
+        issuedAt: bigint;
+        revokedAt: bigint;
+        ipfsCID: string;
+        docType: string;
+        verifyCount: bigint;
+      }
+    ],
     "view"
   >;
 
+  getEvent(
+    key: "DocumentRevoked"
+  ): TypedContractEvent<
+    DocumentRevokedEvent.InputTuple,
+    DocumentRevokedEvent.OutputTuple,
+    DocumentRevokedEvent.OutputObject
+  >;
   getEvent(
     key: "DocumentStored"
   ): TypedContractEvent<
@@ -185,9 +424,41 @@ export interface DocChain extends BaseContract {
     DocumentStoredEvent.OutputTuple,
     DocumentStoredEvent.OutputObject
   >;
+  getEvent(
+    key: "DocumentVerified"
+  ): TypedContractEvent<
+    DocumentVerifiedEvent.InputTuple,
+    DocumentVerifiedEvent.OutputTuple,
+    DocumentVerifiedEvent.OutputObject
+  >;
+  getEvent(
+    key: "IssuerGranted"
+  ): TypedContractEvent<
+    IssuerGrantedEvent.InputTuple,
+    IssuerGrantedEvent.OutputTuple,
+    IssuerGrantedEvent.OutputObject
+  >;
+  getEvent(
+    key: "IssuerRevoked"
+  ): TypedContractEvent<
+    IssuerRevokedEvent.InputTuple,
+    IssuerRevokedEvent.OutputTuple,
+    IssuerRevokedEvent.OutputObject
+  >;
 
   filters: {
-    "DocumentStored(string,address,string,string)": TypedContractEvent<
+    "DocumentRevoked(string,address,uint256)": TypedContractEvent<
+      DocumentRevokedEvent.InputTuple,
+      DocumentRevokedEvent.OutputTuple,
+      DocumentRevokedEvent.OutputObject
+    >;
+    DocumentRevoked: TypedContractEvent<
+      DocumentRevokedEvent.InputTuple,
+      DocumentRevokedEvent.OutputTuple,
+      DocumentRevokedEvent.OutputObject
+    >;
+
+    "DocumentStored(string,address,string,string,uint256)": TypedContractEvent<
       DocumentStoredEvent.InputTuple,
       DocumentStoredEvent.OutputTuple,
       DocumentStoredEvent.OutputObject
@@ -196,6 +467,39 @@ export interface DocChain extends BaseContract {
       DocumentStoredEvent.InputTuple,
       DocumentStoredEvent.OutputTuple,
       DocumentStoredEvent.OutputObject
+    >;
+
+    "DocumentVerified(string,address,uint8,uint256)": TypedContractEvent<
+      DocumentVerifiedEvent.InputTuple,
+      DocumentVerifiedEvent.OutputTuple,
+      DocumentVerifiedEvent.OutputObject
+    >;
+    DocumentVerified: TypedContractEvent<
+      DocumentVerifiedEvent.InputTuple,
+      DocumentVerifiedEvent.OutputTuple,
+      DocumentVerifiedEvent.OutputObject
+    >;
+
+    "IssuerGranted(address,address)": TypedContractEvent<
+      IssuerGrantedEvent.InputTuple,
+      IssuerGrantedEvent.OutputTuple,
+      IssuerGrantedEvent.OutputObject
+    >;
+    IssuerGranted: TypedContractEvent<
+      IssuerGrantedEvent.InputTuple,
+      IssuerGrantedEvent.OutputTuple,
+      IssuerGrantedEvent.OutputObject
+    >;
+
+    "IssuerRevoked(address,address)": TypedContractEvent<
+      IssuerRevokedEvent.InputTuple,
+      IssuerRevokedEvent.OutputTuple,
+      IssuerRevokedEvent.OutputObject
+    >;
+    IssuerRevoked: TypedContractEvent<
+      IssuerRevokedEvent.InputTuple,
+      IssuerRevokedEvent.OutputTuple,
+      IssuerRevokedEvent.OutputObject
     >;
   };
 }

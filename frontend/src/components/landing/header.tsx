@@ -1,121 +1,44 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun, User } from "lucide-react";
-import LogoImg from "../../image/logo.png";
-import {
-  Menubar,
-  MenubarMenu,
-  MenubarTrigger,
-  MenubarContent,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarItem,
-} from "@/components/ui/menubar";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-
-// import{ MenubarItem } from "@/components/ui/menubar";
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/verify", label: "Verify" },
+  { href: "/locker", label: "Locker" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/admin", label: "Admin" },
+  { href: "/working", label: "How it works" },
+];
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement | null>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    function onDocClick(e: MouseEvent) {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
-  }, [open]);
+  const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border ">
-  <div className="container mx-auto relative flex h-16 items-center justify-between px-4">
-        
-        {/* Logo + Brand Name */}
-        <Link href="/" className="flex items-center space-x-2">
-          <Image
-            src={LogoImg} // place your logo inside /public folder
-            alt="Logo"
-            width={100}
-            height={50}
-            className="rounded-md"
-          />
-          
+    <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <Link href="/" className="font-bold text-base tracking-tight">
+          DocChain
         </Link>
 
-        {/* Navigation Links */}
-        <nav className="hidden md:flex items-center space-x-10 text-sm font-medium">
-          <Link href="#features" className="hover:text-primary transition-colors">
-            Features
-          </Link>
-          <Link href="#about" className="hover:text-primary transition-colors">
-            About
-          </Link>
-          <Link href="#contact" className="hover:text-primary transition-colors">
-            Contact
-          </Link>
+        <nav className="flex gap-1">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "px-3 py-1.5 text-sm rounded-md transition-colors",
+                pathname === href
+                  ? "bg-foreground text-background font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
-
-        {/* Right Section - Theme Toggle & Button */}
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Toggle Theme"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-               {theme === "light" ? (
-      <Moon className="h-[1.2rem] w-[1.2rem]" />
-    ) : (
-      <Sun className="h-[1.2rem] w-[1.2rem]" />
-    )}
-
-          </Button>
-
-          <Button asChild>
-            <Link href="#get-started">Get Started</Link>
-          </Button>
-          {/* User button toggles an inline dropdown with the Menubar */}
-      <div className="flex items-center gap-4">
-        <Menubar>
-          <MenubarMenu>
-           <MenubarTrigger asChild>
-  <button
-    onDoubleClick={() => router.push("/login")}
-    className="p-2 rounded-full hover:bg-accent flex items-center"
-    type="button"
-  >
-    {/* The User icon can go here */}
-    <User className="w-5 h-5" />
-  </button>
-</MenubarTrigger>
-            <MenubarContent>
-              <MenubarRadioGroup value="">
-                <MenubarRadioItem value="andy" onClick={() =>router.push("/login/issuer")}>Issuer</MenubarRadioItem>
-                <MenubarRadioItem value="benoit" onClick={() => router.push("/login/user")}>User</MenubarRadioItem>
-                <MenubarRadioItem value="Luis"onClick={() => router.push("/login/verifier")}>Verifier</MenubarRadioItem>
-              </MenubarRadioGroup>
-             
-            </MenubarContent>
-          </MenubarMenu>
-        </Menubar>
-      </div>
-        </div>
-
-        
-        
-        
       </div>
     </header>
   );
