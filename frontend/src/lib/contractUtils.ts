@@ -35,9 +35,12 @@ export enum CertStatus {
 
 export function certStatusLabel(status: CertStatus): string {
   switch (status) {
-    case CertStatus.Active: return "Active";
-    case CertStatus.Revoked: return "Revoked";
-    default: return "Not Found";
+    case CertStatus.Active:
+      return "Active";
+    case CertStatus.Revoked:
+      return "Revoked";
+    default:
+      return "Not Found";
   }
 }
 
@@ -59,34 +62,68 @@ async function getProvider(): Promise<ethers.BrowserProvider> {
 
 async function assertSepoliaNetwork(): Promise<void> {
   if (!window.ethereum) throw new Error("MetaMask not detected");
+
   const chainIdHex = await window.ethereum.request({ method: "eth_chainId" });
   const chainId = BigInt(chainIdHex as string);
+
   if (chainId !== 11155111n) {
-    throw new Error("Wrong network! Please switch MetaMask to Sepolia testnet (Chain ID: 11155111)");
+    try {
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: "0xaa36a7" }]
+      });
+    } catch {
+      throw new Error(
+        "Wrong network! Please switch MetaMask to Sepolia testnet (Chain ID: 11155111)"
+      );
+    }
   }
 }
 
 async function getSignerAndContract() {
-  if (!CONTRACT_ADDRESS) throw new Error("Contract address not set. Add NEXT_PUBLIC_CONTRACT_ADDRESS to .env.local");
+  if (!CONTRACT_ADDRESS) {
+    throw new Error(
+      "Contract address not set. Add NEXT_PUBLIC_CONTRACT_ADDRESS to .env.local"
+    );
+  }
+
   const provider = await getProvider();
+
   await provider.send("eth_requestAccounts", []);
   await assertSepoliaNetwork();
+
   const signer = await provider.getSigner();
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+  const contract = new ethers.Contract(
+    CONTRACT_ADDRESS,
+    CONTRACT_ABI,
+    signer
+  );
+
   return { signer, contract };
 }
 
 async function getReadContract() {
   if (!CONTRACT_ADDRESS) throw new Error("Contract address not set.");
+
   const provider = await getProvider();
-  return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+
+  return new ethers.Contract(
+    CONTRACT_ADDRESS,
+    CONTRACT_ABI,
+    provider
+  );
 }
 
 export async function connectWallet(): Promise<string> {
   const provider = await getProvider();
+
   await provider.send("eth_requestAccounts", []);
+
   await assertSepoliaNetwork();
+
   const signer = await provider.getSigner();
+
   return await signer.getAddress();
 }
 
@@ -96,60 +133,92 @@ export async function storeDocumentOnChain(
   docType: string
 ): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.storeDocument(fileHash, ipfsCID, docType);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
-export async function revokeDocumentOnChain(fileHash: string): Promise<string> {
+export async function revokeDocumentOnChain(
+  fileHash: string
+): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.revokeDocument(fileHash);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
-export async function verifyDocumentOnChain(fileHash: string): Promise<VerificationResult> {
+export async function verifyDocumentOnChain(
+  fileHash: string
+): Promise<VerificationResult> {
   const contract = await getReadContract();
+
   const [status, issuedBy, issuedAt, revokedAt, ipfsCID, docType] =
     await contract.verifyDocument(fileHash);
+
   const statusNum = Number(status) as CertStatus;
+
   return {
     status: statusNum,
     issuedBy: statusNum !== CertStatus.NotExists ? (issuedBy as string) : "",
-    issuedAt: statusNum !== CertStatus.NotExists ? new Date(Number(issuedAt) * 1000) : null,
-    revokedAt: statusNum === CertStatus.Revoked ? new Date(Number(revokedAt) * 1000) : null,
+    issuedAt:
+      statusNum !== CertStatus.NotExists
+        ? new Date(Number(issuedAt) * 1000)
+        : null,
+    revokedAt:
+      statusNum === CertStatus.Revoked
+        ? new Date(Number(revokedAt) * 1000)
+        : null,
     ipfsCID: statusNum !== CertStatus.NotExists ? (ipfsCID as string) : "",
     docType: statusNum !== CertStatus.NotExists ? (docType as string) : ""
   };
 }
 
-export async function grantIssuer(issuerAddress: string): Promise<string> {
+export async function grantIssuer(
+  issuerAddress: string
+): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.grantIssuer(issuerAddress);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
-export async function revokeIssuerRole(issuerAddress: string): Promise<string> {
+export async function revokeIssuerRole(
+  issuerAddress: string
+): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.revokeIssuer(issuerAddress);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
 export async function isIssuer(address: string): Promise<boolean> {
   const contract = await getReadContract();
-  return await contract.issuers(address) as boolean;
+
+  return (await contract.issuers(address)) as boolean;
 }
 
 export async function getAdmin(): Promise<string> {
   const contract = await getReadContract();
-  return await contract.admin() as string;
+
+  return (await contract.admin()) as string;
 }
 
 export async function getUserRole(address: string): Promise<string> {
   const contract = await getReadContract();
-  return await contract.getUserRole(address) as string;
+
+  return (await contract.getUserRole(address)) as string;
 }
 
 export async function registerInstitute(
@@ -157,15 +226,23 @@ export async function registerInstitute(
   name: string
 ): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.registerInstitute(instituteAddress, name);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
-export async function assignStudentRole(studentAddress: string): Promise<string> {
+export async function assignStudentRole(
+  studentAddress: string
+): Promise<string> {
   const { contract } = await getSignerAndContract();
+
   const tx = await contract.assignStudentRole(studentAddress);
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
@@ -176,20 +253,34 @@ export async function issueToStudent(
   studentAddress: string
 ): Promise<string> {
   const { contract } = await getSignerAndContract();
-  const tx = await contract.issueToStudent(fileHash, ipfsCID, docType, studentAddress);
+
+  const tx = await contract.issueToStudent(
+    fileHash,
+    ipfsCID,
+    docType,
+    studentAddress
+  );
+
   await tx.wait();
+
   return tx.hash as string;
 }
 
-export async function getStudentDocuments(studentAddress: string): Promise<string[]> {
+export async function getStudentDocuments(
+  studentAddress: string
+): Promise<string[]> {
   const contract = await getReadContract();
-  return await contract.getStudentDocuments(studentAddress) as string[];
+
+  return (await contract.getStudentDocuments(studentAddress)) as string[];
 }
 
-export async function getInstituteName(address: string): Promise<string> {
+export async function getInstituteName(
+  address: string
+): Promise<string> {
   try {
     const contract = await getReadContract();
-    return await contract.instituteName(address) as string;
+
+    return (await contract.instituteName(address)) as string;
   } catch {
     return "";
   }

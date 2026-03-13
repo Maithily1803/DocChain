@@ -4,17 +4,46 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/verify", label: "Verify" },
-  { href: "/locker", label: "Locker" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/admin", label: "Admin" },
-  { href: "/working", label: "How it works" },
-];
+const NAV_LINKS: Record<string, { href: string; label: string }[]> = {
+  admin: [
+    { href: "/admin", label: "Admin Panel" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/working", label: "How it works" },
+  ],
+  institute: [
+    { href: "/institute", label: "Issue Document" },
+    { href: "/verify", label: "Verify" },
+    { href: "/dashboard", label: "Dashboard" },
+    { href: "/working", label: "How it works" },
+  ],
+  student: [
+    { href: "/student", label: "My Documents" },
+    { href: "/locker", label: "Locker" },
+    { href: "/verify", label: "Verify" },
+    { href: "/working", label: "How it works" },
+  ],
+};
 
-export default function Header() {
+interface HeaderProps {
+  role?: "admin" | "institute" | "student" | "none" | null;
+  walletAddress?: string;
+}
+
+export default function Header({ role, walletAddress }: HeaderProps) {
   const pathname = usePathname();
+
+  if (!role || role === "none" || !walletAddress) {
+    return null;
+  }
+
+  const links = NAV_LINKS[role] ?? [];
+  const shortAddr = `${walletAddress.slice(0, 6)}…${walletAddress.slice(-4)}`;
+
+  const roleLabel: Record<string, string> = {
+    admin: "Admin",
+    institute: "Institute",
+    student: "Student",
+  };
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-40">
@@ -23,8 +52,8 @@ export default function Header() {
           DocChain
         </Link>
 
-        <nav className="flex gap-1">
-          {NAV_LINKS.map(({ href, label }) => (
+        <nav className="flex gap-1 items-center">
+          {links.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
@@ -38,6 +67,10 @@ export default function Header() {
               {label}
             </Link>
           ))}
+
+          <span className="ml-3 px-3 py-1 text-xs rounded-full border border-border bg-muted text-muted-foreground font-mono">
+            {roleLabel[role]} · {shortAddr}
+          </span>
         </nav>
       </div>
     </header>
