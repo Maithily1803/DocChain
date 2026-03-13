@@ -1,7 +1,11 @@
-// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-contract DocChain {
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract DocChain is AccessControl {
+
+    bytes32 public constant INSTITUTE_ROLE = keccak256("INSTITUTE_ROLE");
+    bytes32 public constant STUDENT_ROLE   = keccak256("STUDENT_ROLE");
 
     enum CertStatus { NotExists, Active, Revoked }
 
@@ -17,8 +21,11 @@ contract DocChain {
     }
 
     address public admin;
-    mapping(address => bool) public issuers;
-    mapping(string => Document) private documents;
+    mapping(address => bool)     public issuers;
+    mapping(string  => Document) private documents;
+
+    mapping(address => string[]) public studentDocuments;
+    mapping(address => string)   public instituteName;
 
     event IssuerGranted(address indexed issuer, address indexed grantedBy);
     event IssuerRevoked(address indexed issuer, address indexed revokedBy);
@@ -39,6 +46,10 @@ contract DocChain {
     constructor() {
         admin = msg.sender;
         issuers[msg.sender] = true;
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(INSTITUTE_ROLE, msg.sender);
+
         emit IssuerGranted(msg.sender, msg.sender);
     }
 
@@ -68,13 +79,13 @@ contract DocChain {
         require(documents[_hash].status == CertStatus.NotExists, "DocChain: document already exists");
 
         documents[_hash] = Document({
-            hash: _hash,
-            ipfsCID: _ipfsCID,
-            docType: _docType,
-            issuedBy: msg.sender,
-            issuedAt: block.timestamp,
-            revokedAt: 0,
-            status: CertStatus.Active,
+            hash:       _hash,
+            ipfsCID:    _ipfsCID,
+            docType:    _docType,
+            issuedBy:   msg.sender,
+            issuedAt:   block.timestamp,
+            revokedAt:  0,
+            status:     CertStatus.Active,
             verifyCount: 0
         });
 
@@ -85,7 +96,7 @@ contract DocChain {
         Document storage doc = documents[_hash];
         require(doc.status == CertStatus.Active, "DocChain: document not active");
         require(msg.sender == doc.issuedBy || msg.sender == admin, "DocChain: not authorised to revoke");
-        doc.status = CertStatus.Revoked;
+        doc.status    = CertStatus.Revoked;
         doc.revokedAt = block.timestamp;
         emit DocumentRevoked(_hash, msg.sender, block.timestamp);
     }
@@ -110,5 +121,58 @@ contract DocChain {
 
     function getVerifyCount(string memory _hash) external view returns (uint256) {
         return documents[_hash].verifyCount;
+    }
+
+    function registerInstitute(address _institute, string calldata _name) external onlyAdmin {
+        require(_institute != address(0), "DocChain: zero address");
+        require(bytes(_name).length > 0, "DocChain: empty name");
+        issuers[_institute] = true;
+        _grantRole(INSTITUTE_ROLE, _institute);
+        instituteName[_institute] = _name;
+        emit IssuerGranted(_institute, msg.sender);
+    }
+
+    function assignStudentRole(address _student) external onlyAdmin {
+        require(_student != address(0), "DocChain: zero address");
+        _grantRole(STUDENT_ROLE, _student);
+    }
+
+    function issueToStudent(
+        string  memory _hash,
+        string  memory _ipfsCID,
+        string  memory _docType,
+        address        _student
+    ) external onlyRole(INSTITUTE_ROLE) {
+        require(bytes(_hash).length > 0,    "DocChain: empty hash");
+        require(bytes(_ipfsCID).length > 0, "DocChain: empty CID");
+        require(bytes(_docType).length > 0, "DocChain: empty docType");
+        require(documents[_hash].status == CertStatus.NotExists, "DocChain: document already exists");
+        require(_student != address(0), "DocChain: zero student address");
+
+        documents[_hash] = Document({
+            hash:        _hash,
+            ipfsCID:     _ipfsCID,
+            docType:     _docType,
+            issuedBy:    msg.sender,
+            issuedAt:    block.timestamp,
+            revokedAt:   0,
+            status:      CertStatus.Active,
+            verifyCount: 0
+        });
+
+        studentDocuments[_student].push(_hash);
+
+        emit DocumentStored(_hash, msg.sender, _ipfsCID, _docType, block.timestamp);
+    }
+
+    function getStudentDocuments(address _student) external view returns (string[] memory) {
+        return studentDocuments[_student];
+    }
+
+    function getUserRole(address _user) external view returns (string memory) {
+        if (_user == admin)                         return "admin";
+        if (hasRole(INSTITUTE_ROLE, _user))         return "institute";
+        if (hasRole(STUDENT_ROLE, _user))           return "student";
+        return "none";
     }
 }

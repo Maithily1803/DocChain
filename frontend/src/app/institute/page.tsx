@@ -85,9 +85,7 @@ export default function AdminPage() {
     try {
       const result = await isIssuer(checkAddr);
       setCheckResult(result);
-    } catch {
-      showMsg("error", "Check failed");
-    }
+    } catch { showMsg("error", "Check failed"); }
   };
 
   const handleRegisterInstitute = async () => {
@@ -120,9 +118,7 @@ export default function AdminPage() {
     try {
       const role = await getUserRole(roleCheckAddr);
       setRoleResult(role);
-    } catch {
-      showMsg("error", "Role check failed");
-    }
+    } catch { showMsg("error", "Role check failed"); }
   };
 
   const Badge = ({ label }: { label: string }) => (
