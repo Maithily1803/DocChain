@@ -1,10 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { connectWallet, getUserRole } from "@/lib/contractUtils";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Search, BookOpen } from "lucide-react";
 
 function persistAuth(address: string, role: string) {
   localStorage.setItem("docchain_wallet", address);
@@ -23,62 +22,76 @@ export default function Hero() {
     try {
       const address = await connectWallet();
       const role = await getUserRole(address);
-
       persistAuth(address, role);
-
       if (role === "admin") router.push("/admin");
       else if (role === "institute") router.push("/institute");
       else if (role === "student") router.push("/student");
       else {
-        setError(
-          "This wallet is not registered on DocChain. Ask the admin to assign you a role."
-        );
+        setError("Wallet not registered. Ask the admin to assign you a role.");
       }
     } catch (err: unknown) {
-      setError(
-        err instanceof Error ? err.message : "Wallet connection failed"
-      );
+      setError(err instanceof Error ? err.message : "Wallet connection failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-6 py-24 flex flex-col items-center justify-center text-center gap-10 min-h-[80vh]">
-      <div className="space-y-5 max-w-2xl">
-        <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
-          Decentralized Document Verification
-        </h1>
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+      <div className="max-w-md w-full text-center space-y-10">
+        <div className="space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-foreground flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-8 h-8 text-background" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight">DocChain</h1>
+            <p className="text-muted-foreground text-base mt-2">
+              Tamper-proof academic document verification on the blockchain.
+            </p>
+          </div>
+        </div>
 
-        <p className="text-lg text-muted-foreground">
-          Verify authenticity of documents instantly using tamper-proof
-          blockchain attestations. Share a verification link or check a file
-          hash with no central authority required.
-        </p>
-
-        <div className="flex items-center gap-4 justify-center pt-2">
-          <Button size="lg" onClick={login} disabled={loading} className="min-w-[160px]">
+        <div className="space-y-3">
+          <button
+            onClick={login}
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-3 h-12 rounded-xl bg-foreground text-background font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
+          >
             {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Connecting…
-              </>
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              "Connect Wallet"
+              <ShieldCheck className="w-4 h-4" />
             )}
-          </Button>
+            {loading ? "Connecting…" : "Connect Wallet"}
+          </button>
 
-          <Button size="lg" variant="outline" onClick={() => router.push("/working")}>
-            How it works
-          </Button>
+          <button
+            onClick={() => router.push("/verify")}
+            className="w-full flex items-center justify-center gap-3 h-12 rounded-xl border border-border bg-card text-foreground font-semibold text-sm hover:bg-muted transition-colors"
+          >
+            <Search className="w-4 h-4" />
+            Verify a Document
+          </button>
+
+          <button
+            onClick={() => router.push("/working")}
+            className="w-full flex items-center justify-center gap-3 h-12 rounded-xl border border-border bg-card text-foreground font-semibold text-sm hover:bg-muted transition-colors"
+          >
+            <BookOpen className="w-4 h-4" />
+            How it Works
+          </button>
         </div>
 
         {error && (
-          <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-md px-4 py-2">
+          <p className="text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
             {error}
           </p>
         )}
+
+        <p className="text-xs text-muted-foreground">
+          Running on Sepolia Testnet · Powered by Ethereum &amp; IPFS
+        </p>
       </div>
-    </section>
+    </main>
   );
 }

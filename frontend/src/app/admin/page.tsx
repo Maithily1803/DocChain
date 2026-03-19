@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/button";
 import {
   connectWallet,
   getAdmin,
-  isIssuer,
   grantIssuer,
-  revokeIssuerRole,
   registerInstitute,
   assignStudentRole,
-  getUserRole
+  getUserRole,
 } from "@/lib/contractUtils";
 import {
-  Wallet, UserPlus, UserMinus, AlertCircle,
-  CheckCircle, Building2, GraduationCap, Search
+  Wallet,
+  AlertCircle,
+  CheckCircle,
+  Building2,
+  GraduationCap,
+  Search,
 } from "lucide-react";
 
 type Msg = { type: "success" | "error"; text: string };
@@ -26,10 +28,6 @@ export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Msg | null>(null);
-
-  const [targetAddr, setTargetAddr] = useState("");
-  const [checkAddr, setCheckAddr] = useState("");
-  const [checkResult, setCheckResult] = useState<boolean | null>(null);
 
   const [instAddr, setInstAddr] = useState("");
   const [instName, setInstName] = useState("");
@@ -56,40 +54,6 @@ export default function AdminPage() {
     }
   };
 
-  const handleGrant = async () => {
-    if (!targetAddr) return showMsg("error", "Enter an address");
-    setLoading(true);
-    try {
-      const txHash = await grantIssuer(targetAddr);
-      showMsg("success", `Issuer granted! Tx: ${txHash.slice(0, 12)}...`);
-      setTargetAddr("");
-    } catch (err: unknown) {
-      showMsg("error", err instanceof Error ? err.message : "Grant failed");
-    } finally { setLoading(false); }
-  };
-
-  const handleRevoke = async () => {
-    if (!targetAddr) return showMsg("error", "Enter an address");
-    setLoading(true);
-    try {
-      const txHash = await revokeIssuerRole(targetAddr);
-      showMsg("success", `Issuer revoked! Tx: ${txHash.slice(0, 12)}...`);
-      setTargetAddr("");
-    } catch (err: unknown) {
-      showMsg("error", err instanceof Error ? err.message : "Revoke failed");
-    } finally { setLoading(false); }
-  };
-
-  const handleCheck = async () => {
-    if (!checkAddr) return;
-    try {
-      const result = await isIssuer(checkAddr);
-      setCheckResult(result);
-    } catch {
-      showMsg("error", "Check failed");
-    }
-  };
-
   const handleRegisterInstitute = async () => {
     if (!instAddr || !instName) return showMsg("error", "Enter address and name");
     setLoading(true);
@@ -100,7 +64,9 @@ export default function AdminPage() {
       setInstName("");
     } catch (err: unknown) {
       showMsg("error", err instanceof Error ? err.message : "Registration failed");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAssignStudent = async () => {
@@ -112,7 +78,9 @@ export default function AdminPage() {
       setStudentAddr("");
     } catch (err: unknown) {
       showMsg("error", err instanceof Error ? err.message : "Assignment failed");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleRoleCheck = async () => {
@@ -125,27 +93,27 @@ export default function AdminPage() {
     }
   };
 
-  const Badge = ({ label }: { label: string }) => (
-    <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
-      {label}
-    </span>
-  );
-
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4">
       <div className="p-8 rounded-xl shadow-lg bg-card w-full max-w-xl border border-border space-y-6">
 
+        {/* Header */}
         <div className="text-center">
           <h2 className="text-3xl font-bold">Admin Panel</h2>
-          <p className="text-sm text-muted-foreground mt-1">Manage roles & institutes</p>
+          <p className="text-sm text-muted-foreground mt-1">Manage roles & institutions</p>
         </div>
 
+        {/* Wallet */}
         <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
           <span className="text-sm font-mono">
             {walletAddress
               ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
               : "Not connected"}
-            {isAdmin && <Badge label="Admin" />}
+            {isAdmin && (
+              <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">
+                Admin
+              </span>
+            )}
           </span>
           <Button variant="outline" size="sm" onClick={handleConnect}>
             <Wallet className="w-4 h-4 mr-2" />
@@ -155,23 +123,29 @@ export default function AdminPage() {
 
         {walletAddress && !isAdmin && (
           <div className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
-            Your wallet is not the admin. Admin: <span className="font-mono text-xs">{adminAddress}</span>
+            Your wallet is not the admin. Admin:{" "}
+            <span className="font-mono text-xs">{adminAddress}</span>
           </div>
         )}
 
         {message && (
-          <div className={`flex gap-2 items-start p-3 rounded-md text-sm border ${
-            message.type === "success"
-              ? "bg-green-50 text-green-800 border-green-200"
-              : "bg-red-50 text-red-800 border-red-200"
-          }`}>
-            {message.type === "success"
-              ? <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
-              : <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />}
+          <div
+            className={`flex gap-2 items-start p-3 rounded-md text-sm border ${
+              message.type === "success"
+                ? "bg-green-50 text-green-800 border-green-200"
+                : "bg-red-50 text-red-800 border-red-200"
+            }`}
+          >
+            {message.type === "success" ? (
+              <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            )}
             {message.text}
           </div>
         )}
 
+        {/* Register Institute */}
         <div className="space-y-3 border border-border rounded-lg p-4">
           <div className="flex items-center gap-2 font-medium text-sm">
             <Building2 className="w-4 h-4 text-blue-600" />
@@ -197,6 +171,7 @@ export default function AdminPage() {
           </Button>
         </div>
 
+        {/* Assign Student Role */}
         <div className="space-y-3 border border-border rounded-lg p-4">
           <div className="flex items-center gap-2 font-medium text-sm">
             <GraduationCap className="w-4 h-4 text-emerald-600" />
@@ -217,30 +192,17 @@ export default function AdminPage() {
           </Button>
         </div>
 
-        <div className="space-y-3 border border-border rounded-lg p-4">
-          <p className="text-sm font-medium">Legacy Issuer Management</p>
-          <Input
-            placeholder="Wallet address (0x…)"
-            value={targetAddr}
-            onChange={(e) => setTargetAddr(e.target.value)}
-          />
-          <div className="flex gap-3">
-            <Button onClick={handleGrant} disabled={loading || !isAdmin} className="flex-1">
-              <UserPlus className="w-4 h-4 mr-2" />Grant Issuer
-            </Button>
-            <Button onClick={handleRevoke} variant="destructive" disabled={loading || !isAdmin} className="flex-1">
-              <UserMinus className="w-4 h-4 mr-2" />Revoke Issuer
-            </Button>
-          </div>
-        </div>
-
+        {/* Check Wallet Role */}
         <div className="space-y-3 border border-border rounded-lg p-4">
           <p className="text-sm font-medium">Check Wallet Role</p>
           <div className="flex gap-2">
             <Input
               placeholder="0x…"
               value={roleCheckAddr}
-              onChange={(e) => { setRoleCheckAddr(e.target.value); setRoleResult(""); }}
+              onChange={(e) => {
+                setRoleCheckAddr(e.target.value);
+                setRoleResult("");
+              }}
             />
             <Button variant="outline" onClick={handleRoleCheck}>
               <Search className="w-4 h-4" />
@@ -249,23 +211,6 @@ export default function AdminPage() {
           {roleResult && (
             <p className="text-sm font-medium capitalize text-blue-700">
               Role: <span className="font-bold">{roleResult}</span>
-            </p>
-          )}
-        </div>
-
-        <div className="space-y-3 border-t border-border pt-4">
-          <p className="text-sm font-medium">Check if Address is Issuer</p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="0x…"
-              value={checkAddr}
-              onChange={(e) => { setCheckAddr(e.target.value); setCheckResult(null); }}
-            />
-            <Button variant="outline" onClick={handleCheck}>Check</Button>
-          </div>
-          {checkResult !== null && (
-            <p className={`text-sm font-medium ${checkResult ? "text-green-700" : "text-red-700"}`}>
-              {checkResult ? "Is an authorised issuer" : "Not an issuer"}
             </p>
           )}
         </div>
