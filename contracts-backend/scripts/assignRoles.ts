@@ -4,6 +4,7 @@ const INSTITUTES: { address: string; name: string }[] = [
   { address: "0xD4D19A5de776c425121935dcB49B4AE77566218C", name: "sathaye_college_demo" },
   { address: "0x46Fc4C44bFbD3e3e358D1741C205cE04AdA0c6bd", name: "singhania_college_demo" },
   { address: "0xAb8931f9AF218D1FE0ddcbFa4b046fDf7F26Bd3C", name: "xavier_college_demo" },
+  { address: "0xA5067d4fE59756157d290582F15fAA20d204E09f", name: "St. Joseph's Convent_demo"},
 ];
 
 const STUDENTS: string[] = [
