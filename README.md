@@ -61,5 +61,4 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 - [Archita Shinde](https://github.com/architashinde)
 
-- [Naresh Bidbhitre](https://github.com/skynaresh46)
 >>>>>>> f739af34b0c83cf1a9e573ec373c6b516cb26353
